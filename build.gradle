@@ -37,6 +37,24 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = 17
 }
 
+loom {
+	runs {
+		// 确保客户端运行配置正确
+		client {
+			client()
+			setConfigName("Fabric Client")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+		server {
+			server()
+			setConfigName("Fabric Server")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+	}
+}
+
 java {
 	withSourcesJar()
 	sourceCompatibility = JavaVersion.VERSION_17

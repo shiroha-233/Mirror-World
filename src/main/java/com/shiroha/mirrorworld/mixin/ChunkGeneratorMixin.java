@@ -108,12 +108,13 @@ public class ChunkGeneratorMixin {
         }
     }
     
-    /**
-     * 修改区块生成的高度范围
-     */
-    @Inject(method = "getWorldHeight", at = @At("HEAD"), cancellable = true)
-    private void onGetWorldHeight(CallbackInfoReturnable<Integer> cir) {
-        // 返回扩展后的世界高度
-        cir.setReturnValue(MirrorWorldMod.MIRROR_WORLD_HEIGHT);
-    }
+    // 暂时注释掉有问题的方法，因为在1.20.1中方法可能不存在或签名不同
+    // /**
+    //  * 修改区块生成的高度范围
+    //  */
+    // @Inject(method = "getWorldHeight", at = @At("HEAD"), cancellable = true)
+    // private void onGetWorldHeight(CallbackInfoReturnable<Integer> cir) {
+    //     // 返回扩展后的世界高度
+    //     cir.setReturnValue(MirrorWorldMod.MIRROR_WORLD_HEIGHT);
+    // }
 }

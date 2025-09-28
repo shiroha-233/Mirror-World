@@ -4,6 +4,7 @@ import com.shiroha.mirrorworld.MirrorWorldMod;
 import com.shiroha.mirrorworld.util.MirrorWorldUtils;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,14 +33,14 @@ public class ClientPlayerEntityMixin {
         if (isInMirrorWorld && !gravityWarningShown) {
             player.sendMessage(
                 net.minecraft.text.Text.literal("警告：您已进入镜像世界，重力已翻转！")
-                    .formatted(net.minecraft.text.Formatting.RED, net.minecraft.text.Formatting.BOLD),
+                    .formatted(Formatting.RED, Formatting.BOLD),
                 true
             );
             gravityWarningShown = true;
         } else if (!isInMirrorWorld && gravityWarningShown) {
             player.sendMessage(
                 net.minecraft.text.Text.literal("您已返回正常世界，重力恢复正常。")
-                    .formatted(net.minecraft.text.Formatting.GREEN),
+                    .formatted(Formatting.GREEN),
                 true
             );
             gravityWarningShown = false;
@@ -111,35 +112,37 @@ public class ClientPlayerEntityMixin {
         );
     }
     
-    /**
-     * 修改相机视角以适应镜像世界
-     */
-    @Inject(method = "updateCameraAngles", at = @At("HEAD"))
-    private void onUpdateCameraAngles(CallbackInfo ci) {
-        ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
-        
-        if (MirrorWorldUtils.isInMirrorWorld(player)) {
-            // 可以在这里添加相机视角调整
-            // 例如：轻微的视角翻转或调整
-        }
-    }
+    // 注释掉有问题的方法，因为在1.20.1中方法名可能不同
+    // /**
+    //  * 修改相机视角以适应镜像世界
+    //  */
+    // @Inject(method = "updateCameraAngles", at = @At("HEAD"))
+    // private void onUpdateCameraAngles(CallbackInfo ci) {
+    //     ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
+    //     
+    //     if (MirrorWorldUtils.isInMirrorWorld(player)) {
+    //         // 可以在这里添加相机视角调整
+    //         // 例如：轻微的视角翻转或调整
+    //     }
+    // }
     
-    /**
-     * 修改玩家在镜像世界中的声音效果
-     */
-    @Inject(method = "playSound", at = @At("HEAD"))
-    private void onPlaySound(
-        net.minecraft.sound.SoundEvent sound,
-        net.minecraft.sound.SoundCategory category,
-        float volume,
-        float pitch,
-        CallbackInfo ci
-    ) {
-        ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
-        
-        if (MirrorWorldUtils.isInMirrorWorld(player)) {
-            // 可以在这里修改声音效果
-            // 例如：改变音调或添加回声效果
-        }
-    }
+    // 注释掉有问题的方法，因为在1.20.1中方法签名可能不同
+    // /**
+    //  * 修改玩家在镜像世界中的声音效果
+    //  */
+    // @Inject(method = "playSound", at = @At("HEAD"))
+    // private void onPlaySound(
+    //     net.minecraft.sound.SoundEvent sound,
+    //     net.minecraft.sound.SoundCategory category,
+    //     float volume,
+    //     float pitch,
+    //     CallbackInfo ci
+    // ) {
+    //     ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
+    //     
+    //     if (MirrorWorldUtils.isInMirrorWorld(player)) {
+    //         // 可以在这里修改声音效果
+    //         // 例如：改变音调或添加回声效果
+    //     }
+    // }
 }

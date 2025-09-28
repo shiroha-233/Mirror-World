@@ -1,125 +1,89 @@
 # Mirror World 模组开发日志
 
-## 项目信息
-- **模组名称**: Mirror World
-- **作者**: shiroha
+## 项目概述
+- **模组名称**: Mirror World (镜像世界)
 - **目标版本**: Minecraft 1.20.1
 - **模组加载器**: Fabric
-- **开发语言**: Java 17
+- **开发语言**: Java 17+
+- **功能描述**: 在头顶生成一个和地面一模一样的镜像世界，超过320格高度后翻转重力
 
-## 开发记录
+## 2025/9/28 - Mixin配置修复
 
-### 2025/9/28 - 项目初始化
-- ✅ 清理了Fabric模组模板的示例代码
-- ✅ 修改模组名称为"Mirror World"
-- ✅ 修改作者为"shiroha"
-- ✅ 重新组织包结构为`com.shiroha.mirrorworld`
-- ✅ 创建主模组类`MirrorWorldMod.java`
-- ✅ 创建客户端类`MirrorWorldModClient.java`
-- ✅ 更新配置文件（fabric.mod.json, gradle.properties, build.gradle）
-- ✅ 重命名资源文件夹和mixin配置文件
-- ✅ 删除所有示例代码和文件
-- ✅ 创建项目开发日志文档
-- ✅ 重新创建正确的Java源代码文件
-
-### 2025/9/28 - 镜像世界功能开发
-- ✅ 配置了国内镜像源解决构建问题
-- ✅ 创建了`MirrorWorldChunkGenerator`自定义区块生成器
-- ✅ 实现了`NoiseChunkGeneratorMixin`来在标准世界生成中添加镜像逻辑
-- ✅ 创建了`MirrorWorldUtils`工具类处理坐标转换
-- ✅ 设计了双层世界结构：
-  - 正常世界：Y=0到Y=320
-  - 镜像世界：Y=320到Y=640（倒置镜像）
-- ✅ 实现了方块复制和Y轴坐标映射逻辑
-- ✅ 添加了世界生成相关的注册代码
-
-## 功能特性
-- 🎯 **镜像世界生成**：在头顶生成完全对称的倒置世界
-- 🔧 **坐标转换系统**：提供正常世界与镜像世界之间的坐标映射
-- ⚡ **性能优化**：跳过空气方块以提高生成效率
-- 🛡️ **错误处理**：完善的异常处理和日志记录
-
-## 当前项目结构
+### 问题描述
+启动游戏时出现以下错误：
 ```
-Mirror-World/
-├── src/
-│   ├── main/
-│   │   ├── java/com/shiroha/mirrorworld/
-│   │   │   ├── MirrorWorldMod.java
-│   │   │   ├── world/
-│   │   │   │   └── MirrorWorldChunkGenerator.java
-│   │   │   ├── mixin/
-│   │   │   │   └── NoiseChunkGeneratorMixin.java
-│   │   │   └── util/
-│   │   │       └── MirrorWorldUtils.java
-│   │   └── resources/
-│   │       ├── fabric.mod.json
-│   │       ├── mirrorworld.mixins.json
-│   │       └── assets/mirrorworld/
-│   └── client/
-│       ├── java/com/shiroha/mirrorworld/client/
-│       │   └── MirrorWorldModClient.java
-│       └── resources/
-│           └── mirrorworld.client.mixins.json
-├── build.gradle
-├── gradle.properties
-└── DEVELOPMENT_LOG.md
+java.lang.RuntimeException: Mixin transformation of net.minecraft.client.main.Main failed
+Caused by: org.spongepowered.asm.mixin.throwables.MixinApplyError: Mixin [mirror-world.mixins.json:client.ClientPlayerEntityMixin from mod mirror-world] from phase [DEFAULT] in config [mirror-world.mixins.json] FAILED during PREPARE
+Caused by: org.spongepowered.asm.mixin.transformer.throwables.InvalidMixinException: The specified mixin 'com.shiroha.mirrorworld.mixin.client.ClientPlayerEntityMixin' was not found
 ```
 
-### 2025/9/28 - 编译错误修复
-- ✅ 修复了`populateNoise`方法签名（移除了Executor参数）
-- ✅ 修复了`setBlockState`方法调用（使用int flags而不是boolean）
-- ✅ 修复了`getCodec`返回类型（MapCodec而不是Codec）
-- ✅ 修复了`Identifier`构造函数（使用Identifier.of()）
-- ✅ 实现了所有必需的抽象方法：
-  - `getWorldHeight()` - 返回640（双倍世界高度）
-  - `populateEntities()` - 实体填充逻辑
-  - `carve()` - 世界雕刻逻辑
-  - `appendDebugHudText()` - 调试信息显示
-- ✅ 注释了有问题的BiomeModifications API调用
-- ✅ **构建成功！** 🎉
+### 问题分析
+1. Mixin配置文件`mirror-world.mixins.json`中的客户端Mixin路径配置错误
+2. 配置文件中使用了相对路径`"client.ClientPlayerEntityMixin"`
+3. 但实际的类路径是`com.shiroha.mirrorworld.client.mixin.ClientPlayerEntityMixin`
+4. 由于`package`设置为`com.shiroha.mirrorworld.mixin`，导致系统在错误的包中寻找客户端Mixin类
 
-### 2025/9/28 - 版本降级与架构重构
-- ✅ 将Minecraft版本从1.21.8降级到1.20.1，提高稳定性
-- ✅ 将Java版本从21降级到17，解决兼容性问题
-- ✅ 移除了复杂的Mixin实现，避免性能问题和卡顿
-- ✅ 重构为基于事件监听的简单架构
-- ✅ 使用ServerChunkEvents.CHUNK_LOAD事件来实现镜像世界生成
-- ✅ 修复了Gradle配置和版本兼容性问题
-- ✅ 简化了项目结构，移除了不必要的复杂代码
-- ✅ **构建成功！** 🎉 无Mixin，性能更好
+### 解决方案
+修改`src/main/resources/mirror-world.mixins.json`文件：
 
-### 技术实现细节
-- **双层世界架构**：正常世界(Y=0-320) + 镜像世界(Y=320-640)
-- **坐标映射算法**：`mirrorY = MIRROR_OFFSET + (WORLD_HEIGHT - 1 - y)`
-- **方块复制机制**：在`populateNoise`和`buildSurface`阶段进行镜像复制
-- **性能优化**：使用CompletableFuture进行异步处理
+**修改前：**
+```json
+"client": [
+  "client.ClientPlayerEntityMixin",
+  "client.WorldRendererMixin"
+]
+```
 
-## 下一步计划
-- [ ] 在游戏中测试镜像世界生成功能
-- [ ] 创建自定义世界类型以便玩家选择
-- [ ] 优化生成性能和内存使用
-- [ ] 添加结构生成的镜像支持（村庄、地牢等）
-- [ ] 实现生物群系的镜像分布
-- [ ] 添加传送门或其他方式在两个世界间移动
-- [ ] 创建独特的镜像世界物品和方块
+**修改后：**
+```json
+"client": [
+  "com.shiroha.mirrorworld.client.mixin.ClientPlayerEntityMixin",
+  "com.shiroha.mirrorworld.client.mixin.WorldRendererMixin"
+]
+```
 
-## 新架构特点
-- **事件驱动**：使用ServerChunkEvents.CHUNK_LOAD监听区块加载
-- **简单高效**：避免复杂的Mixin，减少性能开销
-- **稳定可靠**：基于成熟的1.20.1版本，API稳定
-- **易于调试**：清晰的日志输出和标记方块
+### 项目结构确认
+- ✅ 主模组类: `src/main/java/com/shiroha/mirrorworld/MirrorWorldMod.java`
+- ✅ 客户端模组类: `src/client/java/com/shiroha/mirrorworld/client/MirrorWorldModClient.java`
+- ✅ 服务端Mixin类: `src/main/java/com/shiroha/mirrorworld/mixin/`
+- ✅ 客户端Mixin类: `src/client/java/com/shiroha/mirrorworld/client/mixin/`
+- ✅ 配置文件: `src/main/resources/fabric.mod.json`
+- ✅ Mixin配置: `src/main/resources/mirror-world.mixins.json`
 
-## 镜像世界实现
-- **触发时机**：区块首次加载时自动生成镜像
-- **镜像范围**：正常世界(Y=0-120) → 镜像世界(Y=200-319)
-- **标记系统**：在镜像世界四角放置发光石方块
-- **性能优化**：跳过空气方块，只复制实体方块
+### 当前功能模块
+1. **核心模组系统**
+   - 主模组初始化
+   - 客户端模组初始化
+   - 配置文件管理
 
-## 技术规格
-- Minecraft版本: 1.20.1
-- Fabric Loader: 0.14.21
-- Fabric API: 0.83.0+1.20.1
-- Java版本: 17
-- Yarn映射: 1.20.1+build.10
-- Gradle版本: 8.3
+2. **Mixin系统**
+   - `PlayerEntityMixin`: 服务端玩家重力处理
+   - `WorldMixin`: 世界相关修改
+   - `ChunkGeneratorMixin`: 区块生成修改
+   - `ClientPlayerEntityMixin`: 客户端玩家效果
+   - `WorldRendererMixin`: 客户端渲染效果
+
+3. **工具类**
+   - `MirrorWorldUtils`: 镜像世界工具方法
+   - `MirrorWorldConfig`: 配置管理
+   - `MirrorWorldGenerator`: 世界生成器
+   - `MirrorBiomeHandler`: 生物群系处理
+
+4. **调试系统**
+   - `MirrorWorldDebugger`: 调试工具
+   - `MirrorWorldCommand`: 命令系统
+
+### 下一步计划
+1. 测试修复后的Mixin配置是否正常工作
+2. 验证所有Mixin类是否正确加载
+3. 测试镜像世界生成功能
+4. 测试重力翻转效果
+5. 优化客户端渲染效果
+
+### 技术规格
+- **Minecraft版本**: 1.20.1
+- **Yarn映射**: 1.20.1+build.10
+- **Fabric Loader**: 0.14.21
+- **Fabric API**: 0.83.0+1.20.1
+- **Java版本**: 17+
+- **构建工具**: Gradle + Fabric Loom 1.2-SNAPSHOT
