@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    {
+      "config": "mirror-world.common.mixins.json"
+    }
+  ],
+  "client": [
+    {
+      "config": "mirror-world.client.mixins.json"
+    }
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

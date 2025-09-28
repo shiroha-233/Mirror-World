@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "mirror-world",
+  "version": "${version}",
+  "name": "Mirror World",
+  "description": "在头顶生成一个和地面一模一样的镜像世界，超过320格高度后翻转重力",
+  "authors": [
+    "shiroha"
+  ],
+  "contact": {
+    "homepage": "https://github.com/shiroha/Mirror-World",
+    "sources": "https://github.com/shiroha/Mirror-World"
+  },
+  "license": "MIT",
+  "icon": "assets/mirror-world/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.shiroha.mirrorworld.MirrorWorldMod"
+    ],
+    "client": [
+      "com.shiroha.mirrorworld.client.MirrorWorldModClient"
+    ]
+  },
+  "mixins": [
+    "mirror-world.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "fabric-api": ">=0.83.0+1.20.1",
+    "minecraft": "~1.20.1",
+    "java": ">=17"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/example",
+        "modmenu.github_releases": "https://github.com/shiroha/Mirror-World/releases"
+      }
+    }
+  }
+}
